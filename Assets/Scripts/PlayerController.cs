@@ -22,9 +22,13 @@ public class PlayerController : MonoBehaviour
 
     private InputAction jumpAction;
 
+    private int jumpCount = 2;
+
+    private int currentJumpCount = 0;
+
     private bool isOnGround = true;
 
-    private bool canDoubleJump = false;
+    public bool isDashing = false;
 
     private Animator playerAnim;
 
@@ -64,41 +68,37 @@ public class PlayerController : MonoBehaviour
 
     {
 
-        if (jumpAction.triggered && !gameOver)
+        if (jumpAction.triggered && isOnGround && !gameOver && currentJumpCount < jumpCount)
 
         {
 
-            if (isOnGround)
+            rb.AddForce(jumpForce * Vector3.up, ForceMode.Impulse);
+
+            playerAnim.SetTrigger("Jump_trig");
+
+            dirtParticle.Stop();
+
+            playerAudio.PlayOneShot(jumpSfx);
+
+            currentJumpCount++;
+
+            if (currentJumpCount == jumpCount && !gameOver)
 
             {
-
-                rb.AddForce(jumpForce * Vector3.up, ForceMode.Impulse);
 
                 isOnGround = false;
 
-                canDoubleJump = true;
-
-                playerAnim.SetTrigger("Jump_trig");
-
-                dirtParticle.Stop();
-
-                playerAudio.PlayOneShot(jumpSfx);
+                currentJumpCount = 0;
 
             }
 
-            else if (canDoubleJump)
+        }
 
-            {
+        if (Keyboard.current != null)
 
-                rb.AddForce(jumpForce * Vector3.up, ForceMode.Impulse);
+        {
 
-                canDoubleJump = false;
-
-                playerAnim.SetTrigger("Jump_trig");
-
-                playerAudio.PlayOneShot(jumpSfx);
-
-            }
+            isDashing = Keyboard.current.shiftKey.isPressed;
 
         }
 
@@ -141,4 +141,3 @@ public class PlayerController : MonoBehaviour
     }
 
 }
-
